@@ -6,7 +6,7 @@ int sumarEnteros(int num1,int num2);
 int restarEnteros(int num1,int num2);
 float dividirEnteros(int num1, int num2);
 int multiplicarEnteros(int num1,int num2);
-float factorialEntero(int num1);
+int factorialEntero(int num1);
 
 
 

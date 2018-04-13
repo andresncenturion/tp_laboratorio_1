@@ -39,14 +39,18 @@ int multiplicarEnteros(int num1,int num2)
     return resultado;
 }
 
-/*float factorialEntero(int num1)
+int factorialEntero(int num1)
 {
     float resultado;
+    int i;
 
-    if (num1 == 1)
+    if (num1 > 0)
     {
         resultado = 1;
+        for (i=1 ; i <= num1; i++)
+        {
+            resultado = resultado * i;
+        }
     }
-    resultado= num1 * factorialEntero(num1-1);
     return resultado;
-}*/
+}
