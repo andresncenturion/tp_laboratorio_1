@@ -1,35 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "funciones.h"
 
-#define MAX_LISTA 50
-
-typedef struct
-{
-    char nombre[50];
-    int edad;
-    int estado;
-    long int dni;
-}EPersona;
-
-void inicializarEmpleados (EPersona[], int);
-void agregarPersona (EPersona[], int);
-int buscarLibre(EPersona[], int);
-int buscarPersona (EPersona[], int, long int);
-void borrarPersona (EPersona[], int);
-void ordenarPorNombre(EPersona[], int);
-void mostrarPersonas(EPersona[], int);
-void mostrarPersona (EPersona[], int, int);
-void imprimirGrafico (EPersona[], int);
+#define MAX_LISTA 5
 
 int main()
 {
     char seguir='s';
     int opcion=0;
+    int i;
 
     EPersona lista[MAX_LISTA];
+    EPersona* pLista;
 
-    inicializarEmpleados (lista, MAX_LISTA);
+    pLista = &lista;
+    inicializarEmpleados (pLista, MAX_LISTA);
 
     while(seguir=='s')
     {
@@ -45,10 +31,14 @@ int main()
         switch(opcion)
         {
             case 1:
-                agregarPersona(lista, MAX_LISTA);
+                agregarPersona(&pLista, MAX_LISTA);
                 system("pause");
+                for (i=0 ; i<MAX_LISTA ; i++)
+                {
+                    printf("%s  %d  %d  %ld", *(pLista+i)->nombre, *(pLista+i)->edad, *(pLista+i)->estado, *(pLista+i)->dni);
+                }
                 break;
-            case 2:
+            /*case 2:
                 borrarPersona(lista, MAX_LISTA);
                 system("pause");
                 break;
@@ -59,7 +49,7 @@ int main()
             case 4:
                 imprimirGrafico(lista, MAX_LISTA);
                 system("pause");
-                break;
+                break;*/
             case 5:
                 seguir = 'n';
                 break;
@@ -71,65 +61,7 @@ int main()
 
     return 0;
 }
-
-void inicializarEmpleados (EPersona lista[], int tam)
-{
-    int i;
-
-    for (i=0 ; i<tam ; i++)
-    {
-        lista[i].estado = 0;
-    }
-}
-
-int buscarLibre(EPersona lista[], int tam)
-{
-    int i;
-    int index = -1;
-
-    for (i=0 ; i<tam ; i++)
-    {
-        if (lista[i].estado == 0)
-        {
-            index = i;
-            break;
-        }
-    }
-    return index;
-}
-
-void agregarPersona (EPersona lista[], int tam)
-{
-    int index;
-    EPersona nuevaPersona;
-
-    system("cls");
-    index = buscarLibre(lista, MAX_LISTA);
-    if (index == -1)
-    {
-        printf("No se pueden ingresar mas personas.\n\n");
-        system("pause");
-    }
-    else
-    {
-        nuevaPersona.estado = 1;
-
-        printf("--- ALTA PERSONA ---\n\n");
-        printf("Nombre: ");
-        fflush(stdin);
-        gets(nuevaPersona.nombre);
-        printf("Edad: ");
-        scanf("%d", &nuevaPersona.edad);
-        printf("DNI: ");
-        scanf("%ld", &nuevaPersona.dni);
-        lista[index] = nuevaPersona;
-
-        printf("\nSe ha agregado exitosamente.");
-    }
-    printf("\n\n");
-}
-
-
+/*
 int buscarPersona (EPersona lista[], int tam, long int auxDni)
 {
     int i;
@@ -296,4 +228,4 @@ void imprimirGrafico (EPersona lista[], int tam)
 
     printf("\n<=18 \t19-35 \t>35");
     printf("\n\n");
-}
+}*/
