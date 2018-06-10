@@ -19,5 +19,5 @@ int buscarLibre (eMovie*, int);
 void agregarPelicula(char*, eMovie*, int);
 void fileToArray (char*, eMovie*);
 void arrayToFile (char*, eMovie*, int);
-int findString(char*, eMovie*, int);
+void arrayToFile2(char* path, eMovie* arrayMovies, int tam);
 void borrarPelicula(char*, eMovie*, int);

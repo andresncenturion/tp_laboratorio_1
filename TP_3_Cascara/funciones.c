@@ -119,18 +119,29 @@ int buscarLibre (eMovie* arrayMovies, int tam)
 void agregarPelicula(char* path, eMovie* arrayMovies, int tam)
 {
     eMovie* nuevaMovie;
+    eMovie* auxArray;
     int index;
+    int aumento;
 
     fileToArray(path, arrayMovies);
-    nuevaMovie = new_movie();
     index = buscarLibre(arrayMovies, tam);
+    nuevaMovie = new_movie();
     if (index != -1)
     {
         *(arrayMovies+index) = *nuevaMovie;
     }
     else
     {
-        printf("No se pueden agregar mas peliculas.\n\n");
+        aumento = tam+5;
+        auxArray = (eMovie*) realloc(arrayMovies, sizeof(eMovie)+aumento);
+        if (auxArray != NULL)
+        {
+            arrayMovies = auxArray;
+        }
+        else
+        {
+            printf("Error al redimensionar memoria.\n\n");
+        }
     }
     arrayToFile(path, arrayMovies, index);
 }
@@ -188,44 +199,52 @@ void arrayToFile (char* path, eMovie* arrayMovies, int index)
     fclose(f);
 }
 
-int findString(char* auxTitulo, eMovie* arrayMovies, int tam)
+void arrayToFile2(char* path, eMovie* arrayMovies, int tam)
 {
-    int index = -1;
+    FILE* f;
+    int cant;
     int i;
-    int compare;
 
-    for (i=0 ; i<tam ; i++)
+    f = fopen(path, "rb");
+    if (f != NULL)
     {
-        compare = strcmp(auxTitulo, (arrayMovies+i)->titulo);
-        if (compare == 0)
+        fclose(f);
+        f = fopen(path, "wb");
+        for (i=0 ; i<tam ; i++)
         {
-            index = i;
+            if ((arrayMovies+i)->estado == 1)
+            {
+                cant = fwrite((arrayMovies+i), sizeof(eMovie), 1, f);
+                if (cant != 1)
+                {
+                    printf("Error al escribir el archivo.\n\n");
+                }
+            }
         }
     }
-    return index;
 }
 
 void borrarPelicula(char* path, eMovie* arrayMovies, int tam)
 {
-    FILE* f;
     char auxTitulo[20];
-    int index;
     int i;
-    int cant;
 
     fileToArray(path, arrayMovies);
+
     printf("--- BORRAR PELICULA ---\n\n");
     mostrarPeliculas(path, arrayMovies, tam);
     printf("Ingrese nombre de pelicula a borrar: ");
     fflush(stdin);
     gets(auxTitulo);
-    index = findString(auxTitulo, arrayMovies, tam);
-    if (index != -1)
+
+    for (i=0 ; i<tam ; i++)
     {
-        (arrayMovies+index)->estado = 0;
-        printf("La pelicula se ha borrado exitosamente.\n\n");
+        if (stricmp(auxTitulo, (arrayMovies+i)->titulo) == 0)
+        {
+            (arrayMovies+i)->estado = 0;
+            printf("La pelicula se ha borrado exitosamente.\n\n");
+        }
     }
-
-
+    arrayToFile2(path, arrayMovies, tam);
 }
 
