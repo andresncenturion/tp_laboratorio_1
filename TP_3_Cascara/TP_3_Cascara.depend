@@ -3,15 +3,16 @@
 	<stdio.h>
 	<stdlib.h>
 
-1528069785 source:c:\users\andre\documents\github\tp_laboratorio_1\tp_3_cascara\main.c
+1528660368 source:c:\users\andre\documents\github\tp_laboratorio_1\tp_3_cascara\main.c
 	<stdio.h>
 	<stdlib.h>
 	"funciones.h"
 
-1528069709 c:\users\andre\documents\github\tp_laboratorio_1\tp_3_cascara\funciones.h
+1528663159 c:\users\andre\documents\github\tp_laboratorio_1\tp_3_cascara\funciones.h
 
-1528070959 source:c:\users\andre\documents\github\tp_laboratorio_1\tp_3_cascara\funciones.c
+1528663111 source:c:\users\andre\documents\github\tp_laboratorio_1\tp_3_cascara\funciones.c
 	<stdio.h>
 	<stdlib.h>
+	<string.h>
 	"funciones.h"
 

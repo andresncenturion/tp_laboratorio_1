@@ -24,11 +24,11 @@ int main()
         switch (menu())
         {
         case 1:
-            agregarPelicula(arrayMovies, TAM);
+            agregarPelicula(PATH, arrayMovies, TAM);
             system("Pause");
             break;
         case 2:
-            borrarPelicula(arrayMovies, TAM, PATH);
+            borrarPelicula(PATH, arrayMovies, TAM);
             system("Pause");
             break;
         case 5:
