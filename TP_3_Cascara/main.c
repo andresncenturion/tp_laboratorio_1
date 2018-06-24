@@ -3,34 +3,24 @@
 #include "funciones.h"
 
 #define PATH "archivo"
-#define TAM 5
 
 int main()
 {
     char seguir = 's';
     eMovie* arrayMovies;
 
-    arrayMovies = newArrayMovies(TAM);
+    arrayMovies = newArrayMovies();
 
-    if (arrayMovies == (NULL))
-    {
-        printf("No se pudo reservar espacio en memoria\n\n");
-        exit(1);
-    }
-
-    inicializarArray(arrayMovies, TAM);
     while (seguir == 's')
     {
         switch (menu())
         {
         case 1:
-            agregarPelicula(PATH, arrayMovies, TAM);
+            agregarPelicula(PATH, arrayMovies);
             system("Pause");
             break;
         case 2:
-            borrarPelicula(PATH, arrayMovies, TAM);
-            system("Pause");
-            break;
+            borrarPelicula(PATH, arrayMovies);
         case 5:
             seguir = 'n';
             break;
@@ -39,7 +29,6 @@ int main()
             break;
         }
     }
-    //free ();
-
+    free(arrayMovies);
     return 0;
 }

@@ -4,21 +4,36 @@
 #include "funciones.h"
 
 #define PATH "archivo"
-#define TAM 5
+#define M_INITIAL_VALUE 2
 
-eMovie* newArrayMovies (int tam)
+void inicializarArray (eMovie* arrayMovies, int tam)
+{
+    int i;
+
+    if (arrayMovies != NULL && tam > 0)
+    {
+        for (i=0 ; i<tam ; i++)
+        {
+            (arrayMovies+i)->estado = 0;
+        }
+    }
+}
+
+eMovie* newArrayMovies ()
 {
     eMovie* arrayMovies;
 
-    if (tam<0)
+
+    arrayMovies = (eMovie*) malloc (sizeof(eMovie)*);
+
+    if (arrayMovies == NULL)
     {
-        arrayMovies = (eMovie*) malloc(tam*sizeof(eMovie));
-        if (arrayMovies != NULL)
-        {
-            printf("Error al inicializar.\n\n");
-            exit(1);
-        }
+        printf("Error al inicializar.\n\n");
+        exit(1);
     }
+
+    inicializarArray(arrayMovies, tam);
+
     return arrayMovies;
 }
 
@@ -27,11 +42,10 @@ void mostrarPelicula (eMovie* movie)
     printf("%s  %s  %d  %s  %d  %s  %d\n", movie->titulo, movie->genero, movie->duracion, movie->descripcion, movie->puntaje, movie->linkDeImagen, movie->estado);
 }
 
-void mostrarPeliculas (char* path, eMovie* arrayMovies, int tam)
+void mostrarPeliculas (eMovie* arrayMovies, int tam)
 {
     int i = 0;
 
-    fileToArray(path, arrayMovies);
     for (i=0 ; i<tam ; i++)
     {
         if ((arrayMovies+i)->estado == 1)
@@ -40,19 +54,6 @@ void mostrarPeliculas (char* path, eMovie* arrayMovies, int tam)
         }
     }
     printf("\n\n");
-}
-
-void inicializarArray (eMovie* arrayMovies, int tam)
-{
-    int i;
-
-    if (arrayMovies != NULL && tam>0)
-    {
-        for (i=0 ; i<tam ; i++)
-        {
-            (arrayMovies+i)->estado = 0;
-        }
-    }
 }
 
 int menu(void)
@@ -102,8 +103,8 @@ eMovie* new_movie()
 
 int buscarLibre (eMovie* arrayMovies, int tam)
 {
-    int i = -1;
-    int index;
+    int i;
+    int index = -1;
 
     for (i=0 ; i<tam ; i++)
     {
@@ -116,37 +117,22 @@ int buscarLibre (eMovie* arrayMovies, int tam)
     return index;
 }
 
-void agregarPelicula(char* path, eMovie* arrayMovies, int tam)
+eMovie* resizeArray (eMovie* arrayMovies, int tam)
 {
-    eMovie* nuevaMovie;
-    eMovie* auxArray;
-    int index;
-    int aumento;
+    eMovie* auxArray = NULL;
 
-    fileToArray(path, arrayMovies);
-    index = buscarLibre(arrayMovies, tam);
-    nuevaMovie = new_movie();
-    if (index != -1)
+    if (arrayMovies != NULL)
     {
-        *(arrayMovies+index) = *nuevaMovie;
-    }
-    else
-    {
-        aumento = tam+5;
-        auxArray = (eMovie*) realloc(arrayMovies, sizeof(eMovie)+aumento);
+        auxArray = (eMovie*) realloc(arrayMovies, sizeof(eMovie)*(tam+5));
         if (auxArray != NULL)
         {
             arrayMovies = auxArray;
         }
-        else
-        {
-            printf("Error al redimensionar memoria.\n\n");
-        }
     }
-    arrayToFile(path, arrayMovies, index);
+    free(auxArray);
+    return arrayMovies;
 }
-
-void fileToArray (char* path, eMovie* arrayMovies)
+int fileToArray (char* path, eMovie* arrayMovies)
 {
     FILE* f;
     int cant;
@@ -174,12 +160,14 @@ void fileToArray (char* path, eMovie* arrayMovies)
         }
         fclose(f);
     }
+    return i;
 }
 
-void arrayToFile (char* path, eMovie* arrayMovies, int index)
+int arrayToFile (char* path, eMovie* arrayMovies)
 {
     FILE* f;
     int cant;
+    int i=0;
 
     f = fopen(path, "rb");
     if (f == NULL)
@@ -191,12 +179,33 @@ void arrayToFile (char* path, eMovie* arrayMovies, int index)
         f = fopen(path, "ab");
     }
 
-    cant = fwrite((arrayMovies+index), sizeof(eMovie), 1, f);
+    cant = fwrite((arrayMovies+i), sizeof(eMovie), 1, f);
+    i++;
     if (cant != 1)
     {
         printf("Error al escribir el archivo.\n\n");
     }
     fclose(f);
+    return i;
+}
+
+void agregarPelicula(char* path, eMovie* arrayMovies)
+{
+    eMovie* nuevaMovie;
+    int index = 0;
+    int tam = 0;
+
+    tam = fileToArray(path, arrayMovies);
+    index = buscarLibre(arrayMovies, tam);
+    nuevaMovie = new_movie();
+    if (index == -1)
+    {
+        arrayMovies = resizeArray (arrayMovies, tam);
+        index = tam+1;
+    }
+    *(arrayMovies+index) = *nuevaMovie;
+    arrayToFile(path, arrayMovies);
+    printf("Pelicula cargada con exito.\n\n");
 }
 
 void arrayToFile2(char* path, eMovie* arrayMovies, int tam)
@@ -224,27 +233,11 @@ void arrayToFile2(char* path, eMovie* arrayMovies, int tam)
     }
 }
 
-void borrarPelicula(char* path, eMovie* arrayMovies, int tam)
+void borrarPelicula(char* path, eMovie* arrayMovies)
 {
-    char auxTitulo[20];
-    int i;
+    int cant;
 
-    fileToArray(path, arrayMovies);
-
-    printf("--- BORRAR PELICULA ---\n\n");
-    mostrarPeliculas(path, arrayMovies, tam);
-    printf("Ingrese nombre de pelicula a borrar: ");
-    fflush(stdin);
-    gets(auxTitulo);
-
-    for (i=0 ; i<tam ; i++)
-    {
-        if (stricmp(auxTitulo, (arrayMovies+i)->titulo) == 0)
-        {
-            (arrayMovies+i)->estado = 0;
-            printf("La pelicula se ha borrado exitosamente.\n\n");
-        }
-    }
-    arrayToFile2(path, arrayMovies, tam);
+    cant = fileToArray(path, arrayMovies);
+    mostrarPeliculas(arrayMovies, cant);
 }
 
