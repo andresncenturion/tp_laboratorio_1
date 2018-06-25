@@ -45,23 +45,9 @@ void fileToArray (char* path, eMovie* arrayMovies, int* pTam)
     while (!feof(f))
     {
         cant = fread(arrayMovies, sizeof(eMovie), *pTam, f);
-        if (cant != *pTam)
-        {
-            if (feof(f))
-            {
-                break;
-            }
-            else
-            {
-                printf("Error de lectura.\n\n");
-                break;
-            }
-        }
     }
     fclose(f);
     *pTam = cant;
-    printf("Cantidad de elementos leidos desde archivo: %d", cant);
-    system("Pause");
 }
 
 int menu(void)
@@ -83,7 +69,7 @@ int menu(void)
 
 void mostrarPelicula (eMovie* movie)
 {
-    printf("%s  %s  %d  %s  %d  %s  %d\n", movie->titulo, movie->genero, movie->duracion, movie->descripcion, movie->puntaje, movie->linkDeImagen, movie->estado);
+    printf("%s  %s  %d  %s  %d  %s\n", movie->titulo, movie->genero, movie->duracion, movie->descripcion, movie->puntaje, movie->linkDeImagen);
 }
 
 void mostrarPeliculas (eMovie* arrayMovies, int* pTam)
@@ -165,20 +151,18 @@ eMovie* resizeArray (eMovie* arrayMovies, int* pTam)
 void arrayToFile (char* path, eMovie* arrayMovies, int* pTam)
 {
     FILE* f;
-    int cant;
 
-    f = fopen(path, "wb");
+    f = fopen (path, "rb+");
     if (f == NULL)
     {
-        printf("Error al crear archivo.\n\n");
-        exit(-1);
+        f = fopen(path, "wb");
+        if (f == NULL)
+        {
+            printf("Error al crear archivo.\n\n");
+            exit(-1);
+        }
     }
-    cant = fwrite(arrayMovies, sizeof(eMovie), *pTam, f);
-    if (cant != *pTam);
-    {
-        printf("Error al escribir el archivo.\n\n");
-        exit(1);
-    }
+    fwrite(arrayMovies, sizeof(eMovie), *pTam, f);
     fclose(f);
 }
 
@@ -203,7 +187,7 @@ void borrarPelicula(eMovie* arrayMovies, int* pTam)
     char auxTitulo[20];
     int i;
 
-    printf("--- BORRAR PELICULA ---");
+    printf("--- BORRAR PELICULA ---\n\n");
     mostrarPeliculas(arrayMovies, pTam);
     printf("Ingrese el titulo de la pelicula a borrar: ");
     fflush(stdin);
@@ -221,32 +205,81 @@ void borrarPelicula(eMovie* arrayMovies, int* pTam)
 
 void modificarPelicula(eMovie* arrayMovies, int* pTam)
 {
+    char auxTitulo[20];
+    int i;
+    int index = -1;
+    char seguir = 's';
+    int opcion;
+
     printf("--- MODIFICAR PELICULA ---\n\n");
     mostrarPeliculas(arrayMovies, pTam);
-    printf("Ingrese el titulo de la pelicula a modificar: ");
+    printf("\nIngrese el titulo de la pelicula a modificar: ");
     fflush(stdin);
     gets(auxTitulo);
-    int opcion;
+    int flag = 0;
 
     for (i=0 ; i<*pTam ; i++)
     {
         if (strcmp(auxTitulo, (arrayMovies+i)->titulo) == 0)
         {
+            index = i;
+            break;
+        }
+    }
+    while (seguir == 's' && flag == 0)
+    {
+        if (index > -1)
+        {
+            flag = 1;
             printf("Seleccione campo a modificar:\n");
             printf("1. Titulo\n");
             printf("2. Genero\n");
             printf("3. Duracion\n");
             printf("4. Descripcion\n");
             printf("5. Puntaje\n");
-            printf("6. Link de Imagen\n\n");
-            scanf("%d", opcion);
+            printf("6. Link de Imagen\n");
+            printf("7. Cancelar\n\n");
+            scanf("%d", &opcion);
 
             switch (opcion)
             {
             case 1:
                 printf("Ingrese nuevo titulo: ");
-                gets((arrayMovies+i)->titulo);
+                fflush(stdin);
+                gets((arrayMovies+index)->titulo);
+                break;
+            case 2:
+                printf("Ingrese nuevo genero: ");
+                fflush(stdin);
+                gets((arrayMovies+index)->genero);
+                break;
+            case 3:
+                printf("Ingrese nueva duracion: ");
+                scanf("%d", &((arrayMovies+index)->duracion));
+                break;
+            case 4:
+                printf("Ingrese nueva descripcion: ");
+                fflush(stdin);
+                gets((arrayMovies+index)->descripcion);
+                break;
+            case 5:
+                printf("Ingrese nuevo puntaje: ");
+                scanf("%d", &((arrayMovies+index)->puntaje));
+                break;
+            case 6:
+                printf("Ingrese nuevo link de imagen: ");
+                fflush(stdin);
+                gets((arrayMovies+index)->linkDeImagen);
+                break;
+            case 7:
+                seguir = 'n';
+                break;
             }
+        }
+        else
+        {
+            printf("No se han encontrado peliculas con ese nombre.\n\n");
+            break;
         }
     }
 }
