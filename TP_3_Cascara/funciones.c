@@ -34,7 +34,7 @@ void inicializarArray (eMovie* arrayMovies, int* pTam)
 
 void fileToArray (char* path, eMovie* arrayMovies, int* pTam)
 {
-    int cant;
+    int cant = *pTam;
     FILE* f;
 
     f = fopen(path, "rb");
@@ -42,9 +42,12 @@ void fileToArray (char* path, eMovie* arrayMovies, int* pTam)
     {
         f = fopen(path, "wb");
     }
-    while (!feof(f))
+    else
     {
-        cant = fread(arrayMovies, sizeof(eMovie), *pTam, f);
+        while (!feof(f))
+        {
+            cant = fread(arrayMovies, sizeof(eMovie), *pTam, f);
+        }
     }
     fclose(f);
     *pTam = cant;
@@ -295,7 +298,7 @@ void generarPaginaWeb(eMovie* arrayMovies, int* pTam)
         printf("El archivo no pudo ser creado.");
         exit(1);
     }
-    fprintf(f, "<!DOCTYPE html><!-- Template by Quackit.com --><html lang='en'><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1'><!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags --><title>Lista peliculas</title><!-- Bootstrap Core CSS --><link href='css/bootstrap.min.css' rel='stylesheet'><!-- Custom CSS: You can use this stylesheet to override any Bootstrap styles and/or apply your own styles --><link href='css/custom.css' rel='stylesheet'><!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries --><!-- WARNING: Respond.js doesn't work if you view the page via file:// --><!--[if lt IE 9]><script src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js'></script><script src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js'></script><![endif]--></head><body><div class='container'><div class='row'>");
+    fprintf(f,"<!DOCTYPE html><!-- Template by Quackit.com --><html lang='en'><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1'><!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags --><title>Lista peliculas</title><!-- Bootstrap Core CSS --><link href='css/bootstrap.min.css' rel='stylesheet'><!-- Custom CSS: You can use this stylesheet to override any Bootstrap styles and/or apply your own styles --><link href='css/custom.css' rel='stylesheet'><!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries --><!-- WARNING: Respond.js doesn't work if you view the page via file:// --><!--[if lt IE 9]><script src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js'></script><script src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js'></script><![endif]--></head><body><div class='container'><div class='row'>");
         for(i=0; i<*pTam; i++)
         {
             if((arrayMovies+i)->estado == 1)

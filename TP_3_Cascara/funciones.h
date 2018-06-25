@@ -3,7 +3,7 @@ typedef struct
     char titulo[20];
     char genero[20];
     int duracion;
-    char descripcion[50];
+    char descripcion[200];
     int puntaje;
     char linkDeImagen[50];
     int estado;
