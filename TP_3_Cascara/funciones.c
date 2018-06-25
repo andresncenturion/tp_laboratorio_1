@@ -4,56 +4,64 @@
 #include "funciones.h"
 
 #define PATH "archivo"
-#define M_INITIAL_VALUE 2
 
-void inicializarArray (eMovie* arrayMovies, int tam)
+eMovie* newArrayMovies (int* pTam)
+{
+    eMovie* arrayMovies;
+
+    arrayMovies = (eMovie*) malloc (sizeof(eMovie)*(*pTam));
+
+    if (arrayMovies == NULL)
+    {
+        printf("ERROR. No se encontro espacio en memoria para el array de peliculas.\n\n");
+        exit(1);
+    }
+    return arrayMovies;
+}
+
+void inicializarArray (eMovie* arrayMovies, int* pTam)
 {
     int i;
 
-    if (arrayMovies != NULL && tam > 0)
+    if (arrayMovies != NULL && (*pTam) > 0)
     {
-        for (i=0 ; i<tam ; i++)
+        for (i=0 ; i<*pTam ; i++)
         {
             (arrayMovies+i)->estado = 0;
         }
     }
 }
 
-eMovie* newArrayMovies ()
+void fileToArray (char* path, eMovie* arrayMovies, int* pTam)
 {
-    eMovie* arrayMovies;
+    int cant;
+    FILE* f;
 
-
-    arrayMovies = (eMovie*) malloc (sizeof(eMovie)*);
-
-    if (arrayMovies == NULL)
+    f = fopen(path, "rb");
+    if (f == NULL)
     {
-        printf("Error al inicializar.\n\n");
-        exit(1);
+        f = fopen(path, "wb");
     }
-
-    inicializarArray(arrayMovies, tam);
-
-    return arrayMovies;
-}
-
-void mostrarPelicula (eMovie* movie)
-{
-    printf("%s  %s  %d  %s  %d  %s  %d\n", movie->titulo, movie->genero, movie->duracion, movie->descripcion, movie->puntaje, movie->linkDeImagen, movie->estado);
-}
-
-void mostrarPeliculas (eMovie* arrayMovies, int tam)
-{
-    int i = 0;
-
-    for (i=0 ; i<tam ; i++)
+    while (!feof(f))
     {
-        if ((arrayMovies+i)->estado == 1)
+        cant = fread(arrayMovies, sizeof(eMovie), *pTam, f);
+        if (cant != *pTam)
         {
-            mostrarPelicula(arrayMovies+i);
+            if (feof(f))
+            {
+                break;
+            }
+            else
+            {
+                printf("Error de lectura.\n\n");
+                break;
+            }
         }
     }
-    printf("\n\n");
+    fclose(f);
+    *pTam = cant;
+    printf("Cantidad de elementos leidos desde archivo: %d", cant);
+    system("Pause");
 }
 
 int menu(void)
@@ -73,6 +81,25 @@ int menu(void)
     return opcion;
 }
 
+void mostrarPelicula (eMovie* movie)
+{
+    printf("%s  %s  %d  %s  %d  %s  %d\n", movie->titulo, movie->genero, movie->duracion, movie->descripcion, movie->puntaje, movie->linkDeImagen, movie->estado);
+}
+
+void mostrarPeliculas (eMovie* arrayMovies, int* pTam)
+{
+    int i = 0;
+
+    for (i=0 ; i<*pTam ; i++)
+    {
+        if ((arrayMovies+i)->estado == 1)
+        {
+            mostrarPelicula(arrayMovies+i);
+        }
+    }
+    printf("\n\n");
+}
+
 eMovie* new_movie()
 {
     eMovie* nuevaMovie;
@@ -80,6 +107,7 @@ eMovie* new_movie()
     nuevaMovie = (eMovie*) malloc (sizeof(eMovie));
     if (nuevaMovie != NULL)
     {
+        printf("--- AGREGAR PELICULA ---\n\n");
         printf("Titulo: ");
         fflush(stdin);
         gets(nuevaMovie->titulo);
@@ -101,12 +129,12 @@ eMovie* new_movie()
     return nuevaMovie;
 }
 
-int buscarLibre (eMovie* arrayMovies, int tam)
+int buscarLibre (eMovie* arrayMovies, int* pTam)
 {
     int i;
     int index = -1;
 
-    for (i=0 ; i<tam ; i++)
+    for (i=0 ; i<*pTam ; i++)
     {
         if ((arrayMovies+i)->estado == 0)
             {
@@ -117,13 +145,14 @@ int buscarLibre (eMovie* arrayMovies, int tam)
     return index;
 }
 
-eMovie* resizeArray (eMovie* arrayMovies, int tam)
+eMovie* resizeArray (eMovie* arrayMovies, int* pTam)
 {
     eMovie* auxArray = NULL;
 
     if (arrayMovies != NULL)
     {
-        auxArray = (eMovie*) realloc(arrayMovies, sizeof(eMovie)*(tam+5));
+        *pTam = (*pTam + 5);
+        auxArray = (eMovie*) realloc(arrayMovies, sizeof(eMovie)*(*pTam));
         if (auxArray != NULL)
         {
             arrayMovies = auxArray;
@@ -132,112 +161,93 @@ eMovie* resizeArray (eMovie* arrayMovies, int tam)
     free(auxArray);
     return arrayMovies;
 }
-int fileToArray (char* path, eMovie* arrayMovies)
+
+void arrayToFile (char* path, eMovie* arrayMovies, int* pTam)
 {
     FILE* f;
     int cant;
-    int i=0;
 
-    f = fopen(path, "rb");
-    if (f != NULL)
-    {
-        while (!feof(f))
-        {
-            cant = fread((arrayMovies+i), sizeof(eMovie), 1, f);
-            i++;
-            if (cant != 1)
-            {
-                if (feof(f))
-                {
-                    break;
-                }
-                else
-                {
-                    printf("Error al leer el archivo.\n\n");
-                    break;
-                }
-            }
-        }
-        fclose(f);
-    }
-    return i;
-}
-
-int arrayToFile (char* path, eMovie* arrayMovies)
-{
-    FILE* f;
-    int cant;
-    int i=0;
-
-    f = fopen(path, "rb");
+    f = fopen(path, "wb");
     if (f == NULL)
     {
-        f = fopen(path, "wb");
+        printf("Error al crear archivo.\n\n");
+        exit(-1);
     }
-    else
-    {
-        f = fopen(path, "ab");
-    }
-
-    cant = fwrite((arrayMovies+i), sizeof(eMovie), 1, f);
-    i++;
-    if (cant != 1)
+    cant = fwrite(arrayMovies, sizeof(eMovie), *pTam, f);
+    if (cant != *pTam);
     {
         printf("Error al escribir el archivo.\n\n");
+        exit(1);
     }
     fclose(f);
-    return i;
 }
 
-void agregarPelicula(char* path, eMovie* arrayMovies)
+void agregarPelicula(char* path, eMovie* arrayMovies, int* pTam)
 {
+    int index;
     eMovie* nuevaMovie;
-    int index = 0;
-    int tam = 0;
 
-    tam = fileToArray(path, arrayMovies);
-    index = buscarLibre(arrayMovies, tam);
-    nuevaMovie = new_movie();
+    index = buscarLibre(arrayMovies, pTam);
     if (index == -1)
     {
-        arrayMovies = resizeArray (arrayMovies, tam);
-        index = tam+1;
+        arrayMovies = resizeArray (arrayMovies, pTam);
+        index = buscarLibre(arrayMovies, pTam);
     }
+    nuevaMovie = new_movie();
     *(arrayMovies+index) = *nuevaMovie;
-    arrayToFile(path, arrayMovies);
     printf("Pelicula cargada con exito.\n\n");
 }
 
-void arrayToFile2(char* path, eMovie* arrayMovies, int tam)
+void borrarPelicula(eMovie* arrayMovies, int* pTam)
 {
-    FILE* f;
-    int cant;
+    char auxTitulo[20];
     int i;
 
-    f = fopen(path, "rb");
-    if (f != NULL)
+    printf("--- BORRAR PELICULA ---");
+    mostrarPeliculas(arrayMovies, pTam);
+    printf("Ingrese el titulo de la pelicula a borrar: ");
+    fflush(stdin);
+    gets(auxTitulo);
+
+    for (i=0 ; i<*pTam ; i++)
     {
-        fclose(f);
-        f = fopen(path, "wb");
-        for (i=0 ; i<tam ; i++)
+        if (strcmp(auxTitulo, (arrayMovies+i)->titulo) == 0)
         {
-            if ((arrayMovies+i)->estado == 1)
-            {
-                cant = fwrite((arrayMovies+i), sizeof(eMovie), 1, f);
-                if (cant != 1)
-                {
-                    printf("Error al escribir el archivo.\n\n");
-                }
-            }
+            (arrayMovies+i)->estado = 0;
+            printf("Pelicula borrada.\n\n");
         }
     }
 }
 
-void borrarPelicula(char* path, eMovie* arrayMovies)
+void modificarPelicula(eMovie* arrayMovies, int* pTam)
 {
-    int cant;
+    printf("--- MODIFICAR PELICULA ---\n\n");
+    mostrarPeliculas(arrayMovies, pTam);
+    printf("Ingrese el titulo de la pelicula a modificar: ");
+    fflush(stdin);
+    gets(auxTitulo);
+    int opcion;
 
-    cant = fileToArray(path, arrayMovies);
-    mostrarPeliculas(arrayMovies, cant);
+    for (i=0 ; i<*pTam ; i++)
+    {
+        if (strcmp(auxTitulo, (arrayMovies+i)->titulo) == 0)
+        {
+            printf("Seleccione campo a modificar:\n");
+            printf("1. Titulo\n");
+            printf("2. Genero\n");
+            printf("3. Duracion\n");
+            printf("4. Descripcion\n");
+            printf("5. Puntaje\n");
+            printf("6. Link de Imagen\n\n");
+            scanf("%d", opcion);
+
+            switch (opcion)
+            {
+            case 1:
+                printf("Ingrese nuevo titulo: ");
+                gets((arrayMovies+i)->titulo);
+            }
+        }
+    }
 }
 
