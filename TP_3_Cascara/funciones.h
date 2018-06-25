@@ -22,3 +22,4 @@ void arrayToFile (char*, eMovie*, int*);
 void agregarPelicula(char*, eMovie*, int*);
 void borrarPelicula(eMovie*, int*);
 void modificarPelicula(eMovie*, int*);
+void generarPaginaWeb(eMovie*, int*);

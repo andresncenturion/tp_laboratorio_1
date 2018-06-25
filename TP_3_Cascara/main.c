@@ -28,6 +28,9 @@ int main()
         case 3:
             modificarPelicula(arrayMovies, pTam);
             break;
+        case 4:
+            generarPaginaWeb(arrayMovies, pTam);
+            break;
         case 5:
             seguir = 'n';
             break;

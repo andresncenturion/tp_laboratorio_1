@@ -284,3 +284,30 @@ void modificarPelicula(eMovie* arrayMovies, int* pTam)
     }
 }
 
+void generarPaginaWeb(eMovie* arrayMovies, int* pTam)
+{
+    FILE* f;
+    int i;
+
+    f = fopen("C:/Users/andre/Documents/GitHub/tp_laboratorio_1/TP_3_Cascara/template/index.html", "wb");
+    if(f == NULL)
+    {
+        printf("El archivo no pudo ser creado.");
+        exit(1);
+    }
+    fprintf(f, "<!DOCTYPE html><!-- Template by Quackit.com --><html lang='en'><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1'><!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags --><title>Lista peliculas</title><!-- Bootstrap Core CSS --><link href='css/bootstrap.min.css' rel='stylesheet'><!-- Custom CSS: You can use this stylesheet to override any Bootstrap styles and/or apply your own styles --><link href='css/custom.css' rel='stylesheet'><!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries --><!-- WARNING: Respond.js doesn't work if you view the page via file:// --><!--[if lt IE 9]><script src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js'></script><script src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js'></script><![endif]--></head><body><div class='container'><div class='row'>");
+        for(i=0; i<*pTam; i++)
+        {
+            if((arrayMovies+i)->estado == 1)
+            {
+                fprintf(f,"<!-- Repetir esto para cada pelicula --><article class='col-md-4 article-intro'><a href='#'><img class='img-responsive img-rounded' src='%s' alt='%s'></a><h3><a href='#'>", (arrayMovies+i)->linkDeImagen, (arrayMovies+i)->titulo);
+                fprintf(f,"<h3 style='color:#2196f3'>%s</h3>\n",(arrayMovies+i)->titulo);
+                fprintf(f,"<ul><li>Genero: %s</li>\n<li>Puntaje: %d</li>\n<li>Duracion: %d minutos</li></ul>\n",(arrayMovies+i)->genero,(arrayMovies+i)->puntaje,(arrayMovies+i)->duracion);
+                fprintf(f,"<p>%s</p></article>",(arrayMovies+i)->descripcion);
+            }
+        }
+    fprintf(f,"</div></div><script src='js/jquery-1.11.3.min.js'></script><script src='js/bootstrap.min.js'></script><script src='js/ie10-viewport-bug-workaround.js'></script><script src='js/holder.min.js'></script></body></html>");
+    printf("Archivo generado.\n\n");
+    system("Pause");
+    fclose(f);
+}
