@@ -16,3 +16,16 @@
 	<string.h>
 	"funciones.h"
 
+1529977710 source:c:\users\andre\desktop\tp_3_cascara\funciones.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"funciones.h"
+
+1529974133 c:\users\andre\desktop\tp_3_cascara\funciones.h
+
+1529976985 source:c:\users\andre\desktop\tp_3_cascara\main.c
+	<stdio.h>
+	<stdlib.h>
+	"funciones.h"
+

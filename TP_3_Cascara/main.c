@@ -21,15 +21,19 @@ int main()
         {
         case 1:
             agregarPelicula(PATH, arrayMovies, pTam);
+            system("Pause");
             break;
         case 2:
             borrarPelicula(arrayMovies, pTam);
+            system("Pause");
             break;
         case 3:
             modificarPelicula(arrayMovies, pTam);
+            system("Pause");
             break;
         case 4:
             generarPaginaWeb(arrayMovies, pTam);
+            system("Pause");
             break;
         case 5:
             seguir = 'n';

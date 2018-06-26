@@ -34,23 +34,28 @@ void inicializarArray (eMovie* arrayMovies, int* pTam)
 
 void fileToArray (char* path, eMovie* arrayMovies, int* pTam)
 {
-    int cant = *pTam;
-    FILE* f;
+    int flag = 0;
+    FILE *f;
 
     f = fopen(path, "rb");
-    if (f == NULL)
+    if(f == NULL)
     {
         f = fopen(path, "wb");
-    }
-    else
-    {
-        while (!feof(f))
+        if(f == NULL)
         {
-            cant = fread(arrayMovies, sizeof(eMovie), *pTam, f);
+            printf("Error al crear archivo.\n\n");
+        }
+        flag=1;
+    }
+    if(flag==0)
+    {
+        fread(pTam,sizeof(int),1,f);
+        while(!feof(f))
+        {
+            fread(arrayMovies, sizeof(eMovie), *pTam, f);
         }
     }
     fclose(f);
-    *pTam = cant;
 }
 
 int menu(void)
@@ -153,19 +158,17 @@ eMovie* resizeArray (eMovie* arrayMovies, int* pTam)
 
 void arrayToFile (char* path, eMovie* arrayMovies, int* pTam)
 {
-    FILE* f;
+    FILE *f;
 
-    f = fopen (path, "rb+");
-    if (f == NULL)
+    f = fopen(path,"wb");
+    if(f == NULL)
     {
-        f = fopen(path, "wb");
-        if (f == NULL)
-        {
-            printf("Error al crear archivo.\n\n");
-            exit(-1);
-        }
+        printf("Error al crear archivo.\n\n");
     }
+    fwrite(pTam, sizeof(int), 1, f);
+
     fwrite(arrayMovies, sizeof(eMovie), *pTam, f);
+
     fclose(f);
 }
 
@@ -191,7 +194,15 @@ void borrarPelicula(eMovie* arrayMovies, int* pTam)
     int i;
 
     printf("--- BORRAR PELICULA ---\n\n");
-    mostrarPeliculas(arrayMovies, pTam);
+
+    for (i=0 ; i<*pTam ; i++)
+    {
+        if ((arrayMovies+i)->estado == 1)
+        {
+            printf("%s\n", (arrayMovies+i)->titulo);
+        }
+    }
+
     printf("Ingrese el titulo de la pelicula a borrar: ");
     fflush(stdin);
     gets(auxTitulo);
@@ -215,7 +226,15 @@ void modificarPelicula(eMovie* arrayMovies, int* pTam)
     int opcion;
 
     printf("--- MODIFICAR PELICULA ---\n\n");
-    mostrarPeliculas(arrayMovies, pTam);
+
+    for (i=0 ; i<*pTam ; i++)
+    {
+        if ((arrayMovies+i)->estado == 1)
+        {
+            printf("%s\n", (arrayMovies+i)->titulo);
+        }
+    }
+
     printf("\nIngrese el titulo de la pelicula a modificar: ");
     fflush(stdin);
     gets(auxTitulo);
@@ -292,25 +311,33 @@ void generarPaginaWeb(eMovie* arrayMovies, int* pTam)
     FILE* f;
     int i;
 
-    f = fopen("C:/Users/andre/Documents/GitHub/tp_laboratorio_1/TP_3_Cascara/template/index.html", "wb");
+    f = fopen("index.html", "w");
     if(f == NULL)
     {
         printf("El archivo no pudo ser creado.");
         exit(1);
     }
-    fprintf(f,"<!DOCTYPE html><!-- Template by Quackit.com --><html lang='en'><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1'><!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags --><title>Lista peliculas</title><!-- Bootstrap Core CSS --><link href='css/bootstrap.min.css' rel='stylesheet'><!-- Custom CSS: You can use this stylesheet to override any Bootstrap styles and/or apply your own styles --><link href='css/custom.css' rel='stylesheet'><!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries --><!-- WARNING: Respond.js doesn't work if you view the page via file:// --><!--[if lt IE 9]><script src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js'></script><script src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js'></script><![endif]--></head><body><div class='container'><div class='row'>");
-        for(i=0; i<*pTam; i++)
+    fprintf(f,"<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1'> <title>Lista peliculas</title>  <link href='css/bootstrap.min.css' rel='stylesheet'><link href='css/custom.css' rel='stylesheet'></head><body><div class='container'><div class='row'>");
+    for(i=0; i<*pTam; i++)
+    {
+        if((arrayMovies+i)->estado == 1)
         {
-            if((arrayMovies+i)->estado == 1)
-            {
-                fprintf(f,"<!-- Repetir esto para cada pelicula --><article class='col-md-4 article-intro'><a href='#'><img class='img-responsive img-rounded' src='%s' alt='%s'></a><h3><a href='#'>", (arrayMovies+i)->linkDeImagen, (arrayMovies+i)->titulo);
-                fprintf(f,"<h3 style='color:#2196f3'>%s</h3>\n",(arrayMovies+i)->titulo);
-                fprintf(f,"<ul><li>Genero: %s</li>\n<li>Puntaje: %d</li>\n<li>Duracion: %d minutos</li></ul>\n",(arrayMovies+i)->genero,(arrayMovies+i)->puntaje,(arrayMovies+i)->duracion);
-                fprintf(f,"<p>%s</p></article>",(arrayMovies+i)->descripcion);
-            }
+            fprintf(f,"<article class='col-md-4 article-intro'><a href='#'><img class='img-responsive img-rounded' src='");
+            fprintf(f, "%s", (arrayMovies+i)->linkDeImagen);
+            fprintf(f, "'alt=''></a><h3><a href='#'>");
+            fprintf(f, "%s", (arrayMovies+i)->titulo);
+            fprintf(f, "</a></h3><ul><li>Genero:");
+            fprintf(f, "%s", (arrayMovies+i)->genero);
+            fprintf(f, "</li><li>Puntaje:");
+            fprintf(f, "%d", (arrayMovies+i)->puntaje);
+            fprintf(f, "</li><li>Duracion:");
+            fprintf(f, "%d", (arrayMovies+i)->duracion);
+            fprintf(f, "</li></ul><p>");
+            fprintf(f, "%s", (arrayMovies+i)->descripcion);
+            fprintf(f, "</p></article>");
         }
+    }
     fprintf(f,"</div></div><script src='js/jquery-1.11.3.min.js'></script><script src='js/bootstrap.min.js'></script><script src='js/ie10-viewport-bug-workaround.js'></script><script src='js/holder.min.js'></script></body></html>");
     printf("Archivo generado.\n\n");
-    system("Pause");
     fclose(f);
 }
